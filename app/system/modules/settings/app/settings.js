@@ -8,7 +8,7 @@ window.Settings = {
 
     ready: function () {
 
-        UIkit.tab(this.$els.tab, {connect: this.$els.content});
+        UIkit.tab(this.$els.tab, {connect: this.$els.content, swiping: false});
 
     },
 

@@ -40,7 +40,7 @@ window.Site = {
         var vm = this;
 
         this.Nodes = this.$resource('api/site/node{/id}');
-        this.tab = UIkit.tab(this.$els.tab, {connect: this.$els.content});
+        this.tab = UIkit.tab(this.$els.tab, {connect: this.$els.content, swiping: false});
 
         this.tab.on('change.uk.tab', function (tab, current) {
             vm.active = current.index();

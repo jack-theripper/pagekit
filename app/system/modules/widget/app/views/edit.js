@@ -39,7 +39,7 @@ module.exports = {
 
     ready: function () {
 
-        var tab = UIkit.tab(this.$els.tab, {connect: this.$els.content});
+        var tab = UIkit.tab(this.$els.tab, {connect: this.$els.content, swiping: false});
 
         var vm = this;
 
