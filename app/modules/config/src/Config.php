@@ -105,7 +105,7 @@ class Config implements \ArrayAccess, \Countable, \JsonSerializable
      */
     public function pull($key, $value)
     {
-        $values = $this->get($key);
+        $values = $this->get($key, []);
 
         Arr::pull($values, $value);
 
