@@ -119,7 +119,7 @@ class InlineLexer
 
                 if (!$link || !$link["href"]) {
                     $out .= $cap[0][0];
-                    $src = substr($cap[0], 1) + $src;
+                    $src = substr($cap[0], 1) . $src;
                     continue;
                 }
 
@@ -185,7 +185,7 @@ class InlineLexer
             }
 
             if ($src) {
-                throw new \Exception('Infinite loop on byte: ' + ord(substr($src,0)));
+                throw new \Exception('Infinite loop on byte: ' . ord(substr($src,0)));
             }
         }
 
