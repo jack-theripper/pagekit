@@ -84,7 +84,7 @@
 
                 if (path && !this.img.alt) {
 
-                    var alt = path.split('/').slice(-1)[0].replace(/\.(jpeg|jpg|png|svg|gif)$/i, '').replace(/(_|-)/g, ' ').trim(),
+                    var alt = path.split('/').slice(-1)[0].replace(/\.(jpeg|jpg|png|svg|gif|webp)$/i, '').replace(/(_|-)/g, ' ').trim(),
                         first = alt.charAt(0).toUpperCase();
 
                     this.img.alt = first + alt.substr(1);
