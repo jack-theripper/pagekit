@@ -91,7 +91,7 @@ return [
 
         'storage' => false,
 
-        'extensions' => 'bmp,gif,jpeg,jpg,mp4,ogg,pdf,png,svgz,svg,swf'
+        'extensions' => 'bmp,gif,jpeg,jpg,mp4,ogg,pdf,png,svgz,svg,swf,webp'
 
     ]
 

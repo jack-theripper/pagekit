@@ -257,7 +257,7 @@
             },
 
             isImage: function (url) {
-                return url.match(/\.(?:gif|jpe?g|png|svg|ico)$/i);
+                return url.match(/\.(?:gif|jpe?g|png|svg|ico|webp)$/i);
             },
 
             isVideo: function (url) {
