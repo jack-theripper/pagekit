@@ -1,7 +1,8 @@
 var assets = __dirname + "/../assets";
 
-module.exports = [
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
+module.exports = [
     {
         entry: {
             "vue": "./app/vue"
@@ -19,12 +20,14 @@ module.exports = [
             }
         },
         module: {
-            loaders: [
-                { test: /\.vue$/, loader: "vue" },
-                { test: /\.json$/, loader: "json" },
-                { test: /\.html$/, loader: "vue-html" }
+            rules: [
+                {test: /\.vue$/, loader: 'vue-loader'},
+                {test: /\.json$/, loader: 'json'},
+                {test: /\.html$/, loader: "vue-html"}
             ]
-        }
+        },
+        plugins: [
+            new VueLoaderPlugin()
+        ]
     }
-
 ];
