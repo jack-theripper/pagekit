@@ -1,91 +1,88 @@
 <template>
+    <div>
+        <form class="pk-panel-teaser uk-form uk-form-stacked" v-if="editing">
 
-    <form class="pk-panel-teaser uk-form uk-form-stacked" v-if="editing">
+            <div class="uk-form-row">
+                <label for="form-feed-title" class="uk-form-label">{{ 'Title' | trans }}</label>
 
-        <div class="uk-form-row">
-            <label for="form-feed-title" class="uk-form-label">{{ 'Title' | trans }}</label>
-
-            <div class="uk-form-controls">
-                <input id="form-feed-title" class="uk-width-1-1" type="text" name="widget[title]" v-model="widget.title">
+                <div class="uk-form-controls">
+                    <input id="form-feed-title" class="uk-width-1-1" type="text" name="widget[title]" v-model="widget.title">
+                </div>
             </div>
-        </div>
 
-        <div class="uk-form-row">
-            <label for="form-feed-url" class="uk-form-label">{{ 'URL' | trans }}</label>
+            <div class="uk-form-row">
+                <label for="form-feed-url" class="uk-form-label">{{ 'URL' | trans }}</label>
 
-            <div class="uk-form-controls">
-                <input id="form-feed-url" class="uk-width-1-1" type="text" name="url" v-model="widget.url" lazy>
+                <div class="uk-form-controls">
+                    <input id="form-feed-url" class="uk-width-1-1" type="text" name="url" v-model.lazy="widget.url">
+                </div>
             </div>
-        </div>
 
-        <div class="uk-form-row">
-            <label for="form-feed-count" class="uk-form-label">{{ 'Number of Posts' | trans }}</label>
+            <div class="uk-form-row">
+                <label for="form-feed-count" class="uk-form-label">{{ 'Number of Posts' | trans }}</label>
 
-            <div class="uk-form-controls">
-                <select id="form-feed-count" class="uk-width-1-1" v-model="widget.count" number>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                </select>
+                <div class="uk-form-controls">
+                    <select id="form-feed-count" class="uk-width-1-1" v-model.number="widget.count">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="uk-form-row">
-            <span class="uk-form-label">{{ 'Post Content' | trans }}</span>
+            <div class="uk-form-row">
+                <span class="uk-form-label">{{ 'Post Content' | trans }}</span>
 
-            <div class="uk-form-controls uk-form-controls-text">
-                <p class="uk-form-controls-condensed">
-                    <label><input type="radio" value="" v-model="widget.content"> {{ "Don't show" | trans }}</label>
-                </p>
+                <div class="uk-form-controls uk-form-controls-text">
+                    <p class="uk-form-controls-condensed">
+                        <label><input type="radio" value="" v-model="widget.content"> {{ "Don't show" | trans }}</label>
+                    </p>
 
-                <p class="uk-form-controls-condensed">
-                    <label><input type="radio" value="1" v-model="widget.content"> {{ 'Show on all posts' | trans }}</label>
-                </p>
+                    <p class="uk-form-controls-condensed">
+                        <label><input type="radio" value="1" v-model="widget.content"> {{ 'Show on all posts' | trans }}</label>
+                    </p>
 
-                <p class="uk-form-controls-condensed">
-                    <label><input type="radio" value="2" v-model="widget.content"> {{ 'Only show on first post.' | trans }}</label>
-                </p>
+                    <p class="uk-form-controls-condensed">
+                        <label><input type="radio" value="2" v-model="widget.content"> {{ 'Only show on first post.' | trans }}</label>
+                    </p>
+                </div>
             </div>
+
+        </form>
+
+        <div v-show="status != 'loading'">
+
+            <h3 class="uk-panel-title" v-if="widget.title">{{ widget.title }}</h3>
+
+            <ul class="uk-list uk-list-line uk-margin-remove">
+                <li v-for="(entry, index) in count(feed.entries)">
+                    <a :href="entry.link" target="_blank">{{ entry.title }}</a> <span class="uk-text-muted uk-text-nowrap">{{ entry.publishedDate | relativeDate }}</span>
+
+                    <p class="uk-margin-small-top" v-if="widget.content == '1'">{{ entry.contentSnippet }}</p>
+
+                    <p class="uk-margin-small-top" v-if="widget.content == '2'">{{ index == 0 ? entry.contentSnippet : '' }}</p>
+                </li>
+            </ul>
+
+            <div v-if="status == 'error'">{{ 'Unable to retrieve feed data.' | trans }}</div>
+            <div v-if="!widget.url && !editing">{{ 'No URL given.' | trans }}</div>
         </div>
-
-    </form>
-
-    <div v-show="status != 'loading'">
-
-        <h3 class="uk-panel-title" v-if="widget.title">{{ widget.title }}</h3>
-
-        <ul class="uk-list uk-list-line uk-margin-remove">
-            <li v-for="entry in feed.entries | count">
-                <a :href="entry.link" target="_blank">{{ entry.title }}</a> <span class="uk-text-muted uk-text-nowrap">{{ entry.publishedDate | relativeDate }}</span>
-
-                <p class="uk-margin-small-top" v-if="widget.content == '1'">{{ entry.contentSnippet }}</p>
-
-                <p class="uk-margin-small-top" v-if="widget.content == '2'">{{ $index == 0 ? entry.contentSnippet : '' }}</p>
-            </li>
-        </ul>
-
-        <div v-if="status == 'error'">{{ 'Unable to retrieve feed data.' | trans }}</div>
-
-        <div v-if="!widget.url && !editing">{{ 'No URL given.' | trans }}</div>
-
+        <div class="uk-text-center" v-if="status == 'loading'">
+            <v-loader></v-loader>
+        </div>
     </div>
-
-    <div class="uk-text-center" v-else>
-        <v-loader></v-loader>
-    </div>
-
 </template>
 
 <script>
 
-    module.exports = {
+    export default {
 
         type: {
 
@@ -102,22 +99,22 @@
 
         },
 
-        replace: false,
+        replace: false, // @todo
 
         props: ['widget', 'editing'],
 
         data: function () {
             return {
-                status: '',
+                status: null,
                 feed: {}
             }
         },
 
         filters: {
 
-            count: function (entries) {
-                return entries ? entries.slice(0, this.$get('widget.count')) : [];
-            }
+            // count: function (entries) {
+            //     return entries ? entries.slice(0, this.widget.count) : [];
+            // }
 
         },
 
@@ -133,47 +130,60 @@
             },
 
             'widget.count': function (count, old) {
-                var entries = this.$get('feed.entries');
+                let entries = this.feed.entries;
+
                 if (entries && count > old && count > entries.length) {
                     this.load();
                 }
+            },
+
+            editing(newValue) {
+                this.$emit('update:editing', newValue)
             }
-
         },
-
-        ready: function () {
-            if (this.$get('widget.url')) {
+        mounted() {
+            if (this.widget.url) {
                 this.load();
             }
         },
-
         methods: {
 
             load: function () {
 
-                this.$set('feed', {});
-                this.$set('status', '');
+                this.feed = {};
+                this.status = '';
 
-                if (!this.$get('widget.url')) {
+                if (!this.widget.url) {
                     return;
                 }
 
-                this.$set('status', 'loading');
+                this.status = 'loading';
 
                 // TODO: The Google Feed API is deprecated.
-                this.$http.jsonp('//ajax.googleapis.com/ajax/services/feed/load', {v: '1.0', q: this.$get('widget.url'), num: this.$get('widget.count')}).then(function (res) {
-                            var data = res.data;
+                this.$http.jsonp('//ajax.googleapis.com/ajax/services/feed/load', {
+                    v: '1.0',
+                    q: this.widget.url,
+                    num: this.widget.count
+                }).then(function (res) {
 
-                            if (data.responseStatus === 200) {
-                                this.$set('feed', data.responseData.feed);
-                                this.$set('status', 'done');
-                            } else {
-                                this.$set('status', 'error');
-                            }
-                        }, function () {
-                            this.$set('status', 'error');
+                    console.log(this);
+
+                        var data = res.data;
+
+                        if (data.responseStatus === 200) {
+                            this.feed = data.responseData.feed;
+                            this.status = 'done';
+                        } else {
+                            this.status = 'error';
                         }
-                    );
+                    }, function () {
+                        this.status = 'error';
+                    }
+                );
+            },
+
+            count: function (entries) {
+                return entries ? entries.slice(0, this.widget.count) : [];
             }
 
         }

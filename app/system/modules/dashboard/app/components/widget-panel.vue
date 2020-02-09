@@ -1,7 +1,5 @@
 <template>
-
     <div>
-
         <div class="uk-panel-badge" v-if="!type.disableToolbar">
             <ul class="uk-subnav pk-subnav-icon">
                 <li v-show="type.editable !== false && !editing">
@@ -18,48 +16,37 @@
                 </li>
             </ul>
         </div>
-
         <component :is="type.component" :widget="widget" :editing.sync="editing"></component>
-
     </div>
-
 </template>
 
 <script>
-
-module.exports = {
-
-    props: {'widget': {}, 'editing': {default: false}},
-
+export default {
+    props: {
+        widget: {},
+        editing: {
+            default: false
+        }
+    },
     created: function () {
         this.$options.components = this.$parent.$options.components;
     },
-
     computed: {
-
         type: function () {
             return this.$root.getType(this.widget.type);
         }
-
     },
-
     methods: {
-
         edit: function () {
-            this.$set('editing', true);
+            this.editing = true;
         },
-
         save: function () {
             this.$root.save(this.widget);
-            this.$set('editing', false);
+            this.editing = false;
         },
-
         remove: function () {
             this.$root.remove(this.widget);
         }
-
     }
-
 };
-
 </script>

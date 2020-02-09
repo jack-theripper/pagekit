@@ -154,7 +154,7 @@ return [
 
         'view.scripts' => function ($event, $scripts) use ($app) {
             if ($app['user']->hasAccess('user: manage users')) {
-                $scripts->register('widget-user', 'system/user:app/bundle/widget-user.js', '~dashboard');
+//                $scripts->register('widget-user', 'system/user:app/bundle/widget-user.js', '~dashboard');
             }
             $scripts->register('link-user', 'system/user:app/bundle/link-user.js', '~panel-link');
 

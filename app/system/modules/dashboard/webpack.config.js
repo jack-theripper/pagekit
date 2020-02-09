@@ -1,17 +1,18 @@
-module.exports = [
+let VueLoaderPlugin = require('vue-loader/lib/plugin');
 
-    {
-        entry: {
-            "index": "./app/views/index"
-        },
-        output: {
-            filename: "./app/bundle/[name].js"
-        },
-        module: {
-            loaders: [
-                { test: /\.vue$/, loader: "vue" }
-            ]
-        }
-    }
-
-];
+module.exports = [{
+    entry: {
+        "index": "./app/views/index"
+    },
+    output: {
+        filename: "./app/bundle/[name].js"
+    },
+    module: {
+        rules: [
+            {test: /\.vue$/, use: 'vue-loader'}
+        ]
+    },
+    plugins: [
+        new VueLoaderPlugin()
+    ]
+}];

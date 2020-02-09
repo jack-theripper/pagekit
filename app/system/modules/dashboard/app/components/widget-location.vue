@@ -1,72 +1,61 @@
 <template>
-
-    <div class="uk-panel-badge">
-        <ul class="uk-subnav pk-subnav-icon">
-            <li v-show="!editing">
-                <a class="pk-icon-contrast pk-icon-edit pk-icon-hover uk-hidden" :title="'Edit' | trans" data-uk-tooltip="{delay: 500}" @click.prevent="$parent.edit"></a>
-            </li>
-            <li v-show="!editing">
-                <a class="pk-icon-contrast pk-icon-handle pk-icon-hover uk-hidden uk-sortable-handle" :title="'Drag' | trans" data-uk-tooltip="{delay: 500}"></a>
-            </li>
-            <li v-show="editing">
-                <a class="pk-icon-delete pk-icon-hover" :title="'Delete' | trans" data-uk-tooltip="{delay: 500}" @click.prevent="$parent.remove" v-confirm="'Delete widget?'"></a>
-            </li>
-            <li v-show="editing">
-                <a class="pk-icon-check pk-icon-hover" :title="'Close' | trans" data-uk-tooltip="{delay: 500}" @click.prevent="$parent.save"></a>
-            </li>
-        </ul>
-    </div>
-
-    <form class="pk-panel-teaser uk-form uk-form-stacked" v-show="editing" @submit.prevent>
-
-        <div class="uk-form-row">
-            <label for="form-city" class="uk-form-label">{{ 'Location' | trans }}</label>
-
-            <div class="uk-form-controls">
-                <div v-el:autocomplete class="uk-autocomplete uk-width-1-1">
-                    <input id="form-city" class="uk-width-1-1" type="text" :placeholder="location" v-el:location @blur="clear" autocomplete="off">
+    <div>
+        <div class="uk-panel-badge">
+            <ul class="uk-subnav pk-subnav-icon">
+                <li v-show="!editing">
+                    <a class="pk-icon-contrast pk-icon-edit pk-icon-hover uk-hidden" :title="'Edit' | trans" data-uk-tooltip="{delay: 500}" @click.prevent="$parent.edit"></a>
+                </li>
+                <li v-show="!editing">
+                    <a class="pk-icon-contrast pk-icon-handle pk-icon-hover uk-hidden uk-sortable-handle" :title="'Drag' | trans" data-uk-tooltip="{delay: 500}"></a>
+                </li>
+                <li v-show="editing">
+                    <a class="pk-icon-delete pk-icon-hover" :title="'Delete' | trans" data-uk-tooltip="{delay: 500}" @click.prevent="$parent.remove" v-confirm="'Delete widget?'"></a>
+                </li>
+                <li v-show="editing">
+                    <a class="pk-icon-check pk-icon-hover" :title="'Close' | trans" data-uk-tooltip="{delay: 500}" @click.prevent="$parent.save"></a>
+                </li>
+            </ul>
+        </div>
+        <form class="pk-panel-teaser uk-form uk-form-stacked" v-show="editing" @submit.prevent>
+            <div class="uk-form-row">
+                <label for="form-city" class="uk-form-label">{{ 'Location' | trans }}</label>
+                <div class="uk-form-controls">
+                    <div ref="autocomplete" class="uk-autocomplete uk-width-1-1">
+                        <input id="form-city" class="uk-width-1-1" type="text" :placeholder="location" ref="location" @blur="clear" autocomplete="off">
+                    </div>
                 </div>
             </div>
-        </div>
+            <div class="uk-form-row">
+                <span class="uk-form-label">{{ 'Unit' | trans }}</span>
+                <div class="uk-form-controls uk-form-controls-text">
+                    <p class="uk-form-controls-condensed">
+                        <label><input type="radio" value="metric" v-model="widget.units"> {{ 'Metric' | trans }}</label>
+                    </p>
+                    <p class="uk-form-controls-condensed">
+                        <label><input type="radio" value="imperial" v-model="widget.units"> {{ 'Imperial' | trans }}</label>
+                    </p>
+                </div>
+            </div>
+        </form>
 
-        <div class="uk-form-row">
-            <span class="uk-form-label">{{ 'Unit' | trans }}</span>
-
-            <div class="uk-form-controls uk-form-controls-text">
-                <p class="uk-form-controls-condensed">
-                    <label><input type="radio" value="metric" v-model="widget.units"> {{ 'Metric' | trans }}</label>
-                </p>
-
-                <p class="uk-form-controls-condensed">
-                    <label><input type="radio" value="imperial" v-model="widget.units"> {{ 'Imperial' | trans }}</label>
-                </p>
+        <div class="pk-panel-background uk-contrast" v-if="status != 'loading'">
+            <h1 class="uk-margin-large-top uk-margin-small-bottom uk-text-center pk-text-xlarge" v-if="time">{{ time | date(format) }}</h1>
+            <h2 class="uk-text-center uk-h4 uk-margin-remove" v-if="time">{{ time | date('longDate') }}</h2>
+            <div class="uk-margin-large-top uk-flex uk-flex-middle uk-flex-space-between uk-flex-wrap" data-uk-margin>
+                <h3 class="uk-margin-remove" v-if="widget.city">{{ widget.city }}</h3>
+                <h3 class="uk-flex uk-flex-middle uk-margin-remove" v-if="status=='done'">{{ temperature }} <img class="uk-margin-small-left" :src="icon" width="25" height="25" alt="Weather"></h3>
             </div>
         </div>
 
-    </form>
-
-    <div class="pk-panel-background uk-contrast" v-if="status != 'loading'">
-        <h1 class="uk-margin-large-top uk-margin-small-bottom uk-text-center pk-text-xlarge" v-if="time">{{ time | date format }}</h1>
-
-        <h2 class="uk-text-center uk-h4 uk-margin-remove" v-if="time">{{ time | date 'longDate' }}</h2>
-        <div class="uk-margin-large-top uk-flex uk-flex-middle uk-flex-space-between uk-flex-wrap" data-uk-margin>
-            <h3 class="uk-margin-remove" v-if="widget.city">{{ widget.city }}</h3>
-            <h3 class="uk-flex uk-flex-middle uk-margin-remove" v-if="status=='done'">{{ temperature }} <img class="uk-margin-small-left" :src="icon" width="25" height="25" alt="Weather"></h3>
+        <div class="uk-text-center" v-else>
+            <v-loader></v-loader>
         </div>
     </div>
-
-    <div class="uk-text-center" v-else>
-        <v-loader></v-loader>
-    </div>
-
 </template>
 
 <script>
-
-    module.exports = {
-
+    export default {
         type: {
-
             id: 'location',
             label: 'Location',
             disableToolbar: true,
@@ -75,12 +64,18 @@
             defaults: {
                 units: 'metric'
             }
-
         },
 
-        replace: false,
+        replace: false, // @todo
 
-        props: ['widget', 'editing'],
+        props: {
+            widget: {
+                default: {}
+            },
+            editing: {
+                default: null
+            }
+        },
 
         data: function () {
             return {
@@ -93,12 +88,12 @@
             };
         },
 
-        ready: function () {
+        mounted: function () {
 
             var vm = this, list;
 
             UIkit
-                .autocomplete(this.$els.autocomplete, {
+                .autocomplete(this.$refs.autocomplete, {
 
                     source: function (release) {
 
@@ -133,17 +128,17 @@
                     var location = _.find(list, 'id', data.id);
 
                     Vue.nextTick(function () {
-                        vm.$els.location.blur();
+                        vm.$refs.location.blur();
                     });
 
                     if (!location) {
                         return;
                     }
 
-                    vm.$set('widget.uid', location.id);
-                    vm.$set('widget.city', location.name);
-                    vm.$set('widget.country', location.sys.country);
-                    vm.$set('widget.coords', location.coord);
+                    vm.$set(vm.widget, 'uid', location.id);
+                    vm.$set(vm.widget, 'city', location.name);
+                    vm.$set(vm.widget, 'country', location.sys.country);
+                    vm.$set(vm.widget, 'coords', location.coord);
                 });
 
             this.timer = setInterval(this.updateClock(), 60 * 1000);
@@ -156,7 +151,7 @@
                 handler: function (uid) {
 
                     if (uid === undefined) {
-                        this.$set('widget.uid', '');
+                        this.$set(this.widget, 'uid', '');
                         this.$parent.save();
                         this.$parent.edit(true);
                     }
@@ -169,9 +164,10 @@
                 immediate: true
 
             },
-
-            'timezone': 'updateClock'
-
+            timezone: 'updateClock',
+            editing(newValue) {
+                this.$emit('update:editing', newValue);
+            }
         },
 
         computed: {
@@ -205,12 +201,12 @@
                         if (data.cod == 200) {
                             this.init(data)
                         } else {
-                            this.$set('status', 'error');
+                            this.status = 'error';
                         }
 
                     },
                     function () {
-                        this.$set('status', 'error');
+                        this.status = 'error';
                     }
                 );
 
@@ -221,10 +217,10 @@
                     var data = res.data;
                     data.offset = data.rawOffset + data.dstOffset;
 
-                    this.$set('timezone', data);
+                    this.timezone = data;
 
                 }, function () {
-                    this.$set('status', 'error');
+                    this.status = 'error';
                 });
 
 
@@ -232,9 +228,9 @@
 
             init: function (data) {
 
-                this.$set('temp', data.main.temp);
-                this.$set('icon', this.getIconUrl(data.weather[0].icon));
-                this.$set('status', 'done');
+                this.temp = data.main.temp;
+                this.icon = this.getIconUrl(data.weather[0].icon);
+                this.status = 'done';
 
             },
 
@@ -268,27 +264,23 @@
 
             updateClock: function () {
 
-                var offset = this.$get('timezone.offset') || 0,
+                var offset = this.timezone.offset || 0,
                     date = new Date(),
                     time = offset ? new Date(date.getTime() + date.getTimezoneOffset() * 60000 + offset * 1000) : new Date();
 
-                this.$set('time', time);
+                this.time = time;
 
                 return this.updateClock;
             },
 
             clear: function () {
-                this.$els.location.value = '';
+                this.$refs.location.value = '';
             }
 
         },
 
         destroyed: function () {
-
             clearInterval(this.timer);
-
         }
-
     }
-
 </script>

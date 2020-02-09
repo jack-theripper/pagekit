@@ -1,26 +1,18 @@
 var Version = require('../../../../../installer/app/lib/version');
 
+import panel from '../components/widget-panel.vue';
+import feed from '../components/widget-feed.vue';
+import location from '../components/widget-location.vue';
+
 window.Dashboard = {
-
     el: '#dashboard',
-
     data: function () {
-        return _.extend({
-            editing: {},
-            update: {}
-        }, window.$data);
+        return _.extend({editing: {}, update: {}, widgets: []}, window.$data);
     },
-
-    created: function () {
-
-        var self = this;
-
+    created() {
         this.Widgets = this.$resource('admin/dashboard{/id}');
-
-        this.$set('widgets', this.widgets.filter(function (widget, idx) {
-
-            if (self.getType(widget.type)) {
-
+        this.widgets = this.widgets.filter((widget, idx) => {
+            if (this.getType(widget.type)) {
                 widget.idx = widget.idx === undefined ? idx : widget.idx;
                 widget.column = widget.column === undefined ? 0 : widget.column;
 
@@ -28,60 +20,46 @@ window.Dashboard = {
             }
 
             return false;
-        }));
+        });
 
         this.checkVersion();
     },
+    mounted() {
 
-    ready: function () {
+        let sortables = $(this.$el) // widget re-ordering
+            .find('.uk-sortable[data-column]')
+            .each(function () {
+                UIkit.sortable(this, {group: 'widgets', dragCustomClass: 'pk-sortable-dragged-panel', handleClass: 'pk-icon-handle'})
+            })
+            .on('change.uk.sortable', (e, sortable, item, mode) => {
+                if (mode !== 'added' && mode !== 'moved') { // only `added` and `moved` modes
+                    return;
+                }
 
-        var self = this;
+                sortable = sortable.element ? sortable : sortable.data('sortable');
 
-        // widget re-ordering
-        var sortables = $(this.$el).find('.uk-sortable[data-column]').each(function () {
+                let widgets = this.widgets, column = parseInt(sortable.element.data('column'), 10), data = {}, widget;
 
-            UIkit.sortable(this, {group: 'widgets', dragCustomClass: 'pk-sortable-dragged-panel', handleClass: 'pk-icon-handle'});
+                sortable.element.children('[data-idx]').each(function (idx) {
+                    widget = _.find(widgets, 'id', this.getAttribute('data-id'));
+                    widget.column = column;
+                    widget.idx = idx;
+                });
 
-        }).on('change.uk.sortable', function (e, sortable, item, mode) {
+                widgets.forEach(function (widget) {
+                    data[widget.id] = widget;
+                });
 
-            if (!mode) {
-                return;
-            }
-
-            sortable = sortable.element ? sortable : sortable.data('sortable');
-
-            switch (mode) {
-                case 'added':
-                case 'moved':
-
-                    var widgets = self.widgets, column = parseInt(sortable.element.data('column'), 10), data = {}, widget;
-
-                    sortable.element.children('[data-idx]').each(function (idx) {
-
-                        widget = _.find(widgets, 'id', this.getAttribute('data-id'));
-                        widget.column = column;
-                        widget.idx = idx;
+                this.$http.post('admin/dashboard/savewidgets', {widgets: data}).then(function () {
+                    sortables.children().each(function () { // cleanup empty items - maybe fixed with future vue.js version
+                        if (!this.children.length) $(this).remove();
                     });
+                });
+            });
 
-                    widgets.forEach(function (widget) {
-                        data[widget.id] = widget;
-                    });
-
-                    self.$http.post('admin/dashboard/savewidgets', {widgets: data}).then(function () {
-
-                        // cleanup empty items - maybe fixed with future vue.js version
-                        sortables.children().each(function () {
-                            if (!this.children.length) $(this).remove();
-                        });
-                    });
-            }
-        });
     },
-
     filters: {
-
         column: function (widgets, column) {
-
             column = parseInt(column || 0, 10);
 
             return _.sortBy(widgets.filter(function (widget) {
@@ -89,26 +67,19 @@ window.Dashboard = {
             }), 'idx');
         }
     },
-
     computed: {
-
         columns: function () {
             var i = 0;
             return _.groupBy(this.widgets, function () {
                 return i++ % 3;
             });
         },
-
         hasUpdate: function () {
             return this.update && Version.compare(this.update.version, this.version, '>');
         }
-
     },
-
     methods: {
-
         add: function (type) {
-
             var column = 0, sortables = $('#dashboard').find('.uk-sortable[data-column]');
 
             sortables.each(function (idx) {
@@ -121,64 +92,53 @@ window.Dashboard = {
                 this.editing[data.id] = true;
             });
         },
-
         save: function (widget) {
-
-            var data = {widget: widget};
+            const data = {widget: widget};
 
             this.$broadcast('save', data);
             this.Widgets.save({id: widget.id}, data);
         },
-
         remove: function (widget) {
-
             this.Widgets.delete({id: widget.id}).then(function () {
                 this.widgets.splice(_.findIndex(this.widgets, {id: widget.id}), 1);
             });
         },
-
         getType: function (id) {
             return _.find(this.getTypes(), 'id', id);
         },
-
         getTypes: function () {
-
-            var types = [];
+            let types = [];
 
             _.forIn(this.$options.components, function (component, name) {
-
-                var options = component.options || {}, type = options.type;
+                var options = component || {}, type = options.type;
 
                 if (type) {
                     type.component = name;
                     types.push(type);
                 }
-
             });
 
             return types;
         },
 
         checkVersion: function () {
-
             this.$http.get(this.api + '/api/update', {}, {cache: 60}).then(function (res) {
                 var update = res.data[this.channel == 'nightly' ? 'nightly' : 'latest'];
 
                 if (update) {
-                    this.$set('update', update);
+                    this.update = update;
                 }
             });
 
+        },
+        columnWidgets(i) {
+            return this.$options.filters.column(this.widgets, i);
         }
-
     },
-
     components: {
-
-        panel: require('../components/widget-panel.vue'),
-        feed: require('../components/widget-feed.vue'),
-        location: require('../components/widget-location.vue')
-
+        panel,
+        feed,
+        location
     }
 
 };
