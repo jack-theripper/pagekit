@@ -1,4 +1,11 @@
 
+// Require components
+
+import loaderComponent from './components/loader.vue';
+import modalComponent from './components/modal.vue';
+import paginationComponent from './components/pagination.vue';
+import inputFilterComponent from './components/input-filter.vue';
+
 /**
  * Quick object check - this is primarily used to tell
  * Objects from primitive values when we know the value
@@ -71,10 +78,10 @@ function install (Vue) {
      * Components
      */
 
-    // Vue.component('v-loader', require('./components/loader.vue'));
-    // Vue.component('v-modal', require('./components/modal.vue'));
-    // Vue.component('v-pagination', require('./components/pagination'));
-    // Vue.component('input-filter', require('./components/input-filter.vue'));
+    Vue.component('v-loader', loaderComponent);
+    Vue.component('v-modal', modalComponent);
+    Vue.component('v-pagination', paginationComponent);
+    Vue.component('input-filter', inputFilterComponent);
 
     require('./components/input-date.vue');
     require('./components/input-image.vue');

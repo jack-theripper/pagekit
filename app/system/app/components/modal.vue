@@ -1,5 +1,4 @@
 <template>
-
     <div class="uk-modal">
         <div class="uk-modal-dialog" :class="classes">
             <div v-if="opened">
@@ -7,19 +6,16 @@
             </div>
         </div>
     </div>
-
 </template>
 
 <script>
-
-    module.exports = {
-
-        data: function () {
+    export default {
+        name: 'modal',
+        data() {
             return {
                 opened: false
-            };
+            }
         },
-
         props: {
             large: Boolean,
             lightbox: Boolean,
@@ -31,29 +27,22 @@
                 }
             }
         },
+        mounted() {
+            this.$nextTick(function () {
+                document.querySelector('body').appendChild(this.$el);
+                this.modal = UIkit.modal(this.$el, _.extend({modal: false}, this.options));
+                this.modal.on('hide.uk.modal', () => {
+                    this.opened = false;
 
-        ready: function () {
-
-            var vm = this;
-
-            this.$appendTo('body');
-
-            this.modal = UIkit.modal(this.$el, _.extend({modal: false}, this.options));
-            this.modal.on('hide.uk.modal', function () {
-
-                vm.opened = false;
-
-                if (vm.closed) {
-                    vm.closed();
-                }
-            });
-
+                    if (this.closed) {
+                        this.closed();
+                    }
+                })
+            })
         },
-
         computed: {
-
-            classes: function () {
-                var classes = this.modifier.split(' ');
+            classes() {
+                let classes = this.modifier.split(' ');
 
                 if (this.large) {
                     classes.push('uk-modal-dialog-large');
@@ -65,22 +54,15 @@
 
                 return classes;
             }
-
         },
-
         methods: {
-
-            open: function () {
+            open() {
                 this.opened = true;
                 this.modal.show();
             },
-
-            close: function () {
+            close() {
                 this.modal.hide();
             }
-
         }
-
-    };
-
+    }
 </script>
