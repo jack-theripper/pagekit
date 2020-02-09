@@ -1,40 +1,31 @@
 module.exports = function (Vue) {
+    const State = function (key, value) {
+        let current = (new RegExp(key + '=([^&]*)&?')).exec(location.search);
 
-    var State = function (key, value) {
-
-        var vm = this;
-
-        var current = (new RegExp(key + '=([^&]*)&?')).exec(location.search);
         if (!value && current) {
-            vm.$set(key, current[1]);
+            this[key] = current[1];
         }
 
         if (value !== undefined) {
             history.replaceState({key: key, value: this[key]}, '', modifyQuery(location.search, key, value));
         }
-        
+
         this.$watch(key, function (value) {
             history.pushState({key: key, value: value}, '', modifyQuery(location.search, key, value));
         });
 
-        window.onpopstate = function (event) {
+        window.onpopstate = (event) => {
             if (event.state && event.state.key === key) {
-                vm.$set(key, event.state.value);
+                this[key] = event.state.value;
             }
         };
-
     };
 
     Object.defineProperty(Vue.prototype, '$state', {
-
-        get: function () {
-
+        get() {
             return State.bind(this);
-
         }
-
-    });
-
+    })
 };
 
 function modifyQuery(query, key, value) {

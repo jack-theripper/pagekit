@@ -16,7 +16,7 @@ module.exports = function (Vue) {
                 return;
             }
 
-            _assets = _.isArray(assets[type]) ? assets[type] : [assets[type]];
+            _assets = Array.isArray(assets[type]) ? assets[type] : [assets[type]];
 
             for (var i = 0; i < _assets.length; i++) {
 

@@ -594,8 +594,8 @@ var Translator = (function (document, undefined) {
 
 module.exports = function (Vue) {
 
-    Vue.prototype.$trans = Translator.trans.bind(Translator);
-    Vue.prototype.$transChoice = Translator.transChoice.bind(Translator);
+    Vue.$trans = Vue.prototype.$trans = Translator.trans.bind(Translator);
+    Vue.$transChoice = Vue.prototype.$transChoice = Translator.transChoice.bind(Translator);
 
     Object.defineProperty(Vue.prototype, '$locale', {
 

@@ -5,19 +5,13 @@ module.exports = function (Vue) {
     });
 
     Vue.filter('trans', function (id, parameters, domain, locale) {
-        return this.$trans(id, parameters, domain, locale);
+        return Vue.$trans(id, parameters, domain, locale);
     });
 
     Vue.filter('transChoice', function (id, number, parameters, domain, locale) {
-        return this.$transChoice(id, number, parameters, domain, locale);
+        return Vue.$transChoice(id, number, parameters, domain, locale);
     });
 
-    Vue.filter('trim', {
-
-        write: function (value) {
-            return value.trim();
-        }
-
-    });
+    Vue.filter('trim', (value) => value.trim());
 
 };
