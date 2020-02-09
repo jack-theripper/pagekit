@@ -124,6 +124,40 @@ function install (Vue) {
 
     Vue.url.current = Vue.url.parse(window.location.href);
 
+    /**
+     * Recursively broadcast an event to all children instances.
+     *
+     * @param {String|Object} event
+     * @param {...*} additional arguments
+     */
+    Vue.prototype.$broadcast = function (event) {
+
+        let isSource = typeof event === 'string';
+        event = isSource ? event : event.name;
+
+        let children = this.$children;
+        let args = toArray(arguments);
+
+        if (isSource) { // use object event to indicate non-source emit on children
+            // args[0] = { name: event, source: this }
+        }
+
+        for (let i = 0, l = children.length; i < l; i++) {
+            let child = children[i];
+            let shouldPropagate = true;
+
+            if (child._events[event]) {
+                shouldPropagate = child.$emit.apply(child, args);
+            }
+
+            if (child.$children && shouldPropagate) {
+                child.$broadcast.apply(child, args);
+            }
+        }
+
+        return this;
+    };
+
     Vue.ready = function (fn) {
         if (isObject(fn)) {
             var options = fn;
